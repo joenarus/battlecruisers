@@ -50,7 +50,9 @@ public class Ship : MonoBehaviour {
     // Have ship give grid requested attack
     public void Attack(ShipComponent weapon)
     {
-        // how do we know which weapon attacks?        
+        // how do we know which weapon attacks? 
+       
+        // Select weapon from grid in UI -Joe       
     }
 
     // Click a ship

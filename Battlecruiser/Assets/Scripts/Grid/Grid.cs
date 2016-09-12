@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
 
 public class Grid : MonoBehaviour {
@@ -93,8 +92,10 @@ public class Grid : MonoBehaviour {
 
     // returns whether or not a cell is in the range of the grid
     // Contains(What to pass in?  just 3 ints? or an struct of 3 ints?)
-    public bool Contains()
+    public bool Contains(int x, int y, int z)
     {
-        return false;
+        if (x >= x_columns || y >= y_columns || z >= z_columns)
+            return false;
+        return true;
     }
 }
