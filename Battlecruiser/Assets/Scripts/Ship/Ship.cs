@@ -21,6 +21,8 @@ public class Ship : MonoBehaviour {
     // string: The way the ship is facing
     public string ship_facing;
 
+    public bool selected = false;
+
     // Ship's dimensions
     struct coordinate
     {
@@ -61,7 +63,17 @@ public class Ship : MonoBehaviour {
         if (Input.GetMouseButtonDown(0))
         {
             ship_information.text = "This ship belongs to player " + player;
+            selected = true;
         }
+    }
+
+    public void Initialize(int _player, string _facing)
+    {
+        player = _player;
+        ship_facing = _facing;
+        selected = false;
+        ship_information = GameObject.FindGameObjectWithTag("ShipInfoText").GetComponent<Text>();
+        
     }
 
 

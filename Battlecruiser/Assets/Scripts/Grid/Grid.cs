@@ -7,11 +7,13 @@ public class Grid : MonoBehaviour {
     public grid_overlay highlights;
 
     public GameObject cell;
+    public GameObject shipType1;
+    public GameObject shipType2;
 
     public Cell[,,] cell_list;
 
     [SerializeField]
-    private Ship[] ships;
+    private List<Ship> ships;
 
 	//Stores how big the grid is
 	public int x_columns = 1;
@@ -47,8 +49,37 @@ public class Grid : MonoBehaviour {
         }
         // Placement of ships
         // Example of how ships can be placed
-        ships[0].transform.position = cell_list[0, 0, 0].transform.position;
-        ships[1].transform.position = cell_list[0, 1, 1].transform.position;
+
+        placeShip(1, 0, 0, 0, "forward", shipType1);
+        placeShip(2, 1, 1, 1, "forward", shipType2);
+
+
+
+        //ships[0].transform.position = cell_list[0, 0, 0].transform.position;
+        //ships[1].transform.position = cell_list[0, 1, 1].transform.position;
+    }
+
+    void placeShip(int owner, int posX, int posY, int posZ, string direction, GameObject shipPrefab)
+    {
+        GameObject newShip = Object.Instantiate(shipPrefab, new Vector3(posX + 0.5f, posY + 0.5f, posZ + 0.5f), Quaternion.identity, gameObject.transform) as GameObject;
+        Ship tempS = newShip.GetComponent<Ship>();
+        tempS.Initialize(owner, direction);
+        ships.Add(tempS);
+        cell_list[posX, posY, posZ].occupied = true;
+        //TODO: Add other dimensions to occupied
+    }
+
+    public Ship get_selected_ship()
+    {
+        foreach (Ship a in ships) {
+            if (a.selected)
+            {
+                a.selected = false;
+                return a;
+            }
+        }
+        return null;
+        
     }
 
     // Update is called once per frame

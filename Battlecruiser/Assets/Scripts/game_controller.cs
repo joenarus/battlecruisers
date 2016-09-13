@@ -8,6 +8,8 @@ public class game_controller : MonoBehaviour {
     public int player_turn = 0; //1 = player 1, 2 = player 2
     public Grid battlefield;
 
+    public int gamePhase = 0; // 1 = Ship placement, 2 = mainphase
+
     public Text status;  //Currently displays player's turn 
 
     Player player1;
@@ -36,6 +38,14 @@ public class game_controller : MonoBehaviour {
             status.text = "Turn: Player 1";
             player_turn = 1;
         }
+    }
+
+    public void moveForward()
+    {
+        
+        Ship moving_ship = battlefield.get_selected_ship();
+        if (moving_ship != null)
+            moving_ship.transform.Translate(1,0,0);
     }
 
 }
