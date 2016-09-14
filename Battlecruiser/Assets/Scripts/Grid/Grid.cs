@@ -63,9 +63,22 @@ public class Grid : MonoBehaviour {
     {
         GameObject newShip = Object.Instantiate(shipPrefab, new Vector3(posX + 0.5f, posY + 0.5f, posZ + 0.5f), Quaternion.identity, gameObject.transform) as GameObject;
         Ship tempS = newShip.GetComponent<Ship>();
-        tempS.Initialize(owner, direction);
+        Vector3 dimensions = shipPrefab.GetComponentInChildren<MeshRenderer>().bounds.size;
+        tempS.Initialize(owner, direction, dimensions);
         ships.Add(tempS);
-        cell_list[posX, posY, posZ].occupied = true;
+
+        for(int i = 0; i < dimensions.x - .5; i++)
+        {
+            for(int j = 0; j < dimensions.y - .5; j++)
+            {
+                for(int k = 0; k < dimensions.z - .5; k ++)
+                {
+                    cell_list[posX + i, posY + j, posZ + k].occupied = true; //Iterates through dimensions and occupies the proper cells.
+                }
+            }
+        }
+
+        
         //TODO: Add other dimensions to occupied
     }
 
@@ -125,7 +138,7 @@ public class Grid : MonoBehaviour {
     // Contains(What to pass in?  just 3 ints? or an struct of 3 ints?)
     public bool Contains(int x, int y, int z)
     {
-        if (x >= x_columns || y >= y_columns || z >= z_columns)
+        if (x >= x_columns || y >= y_columns || z >= z_columns || x < 0 || y < 0 || z < 0)
             return false;
         return true;
     }

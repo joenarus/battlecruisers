@@ -4,21 +4,22 @@ using System.Collections.Generic;
 
 public class Player : MonoBehaviour {
 
-    private bool _moved;
-    private bool _attacked;
+    private int _actions = 3;
     private List<Ship> _ships;
+    public int id;
 
-    public bool moved
+    public Player(int _id)
     {
-        get { return _moved; }
-        set { _moved = value; }
+        id = _id;
     }
 
-    public bool attacked
+
+    public int actions
     {
-        get { return _attacked; }
-        set { _attacked = value; }
+        get { return _actions; }
+        set { _actions = value; }
     }
+    
 
     private List<Ship> ships
     {

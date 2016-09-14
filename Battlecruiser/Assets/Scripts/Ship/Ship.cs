@@ -7,13 +7,14 @@ public class Ship : MonoBehaviour {
 
     List<ShipComponent> ship_components;
     [SerializeField]
-    private Text ship_information;
+    public Text ship_information;
 
     // Bool: Ship able to move
     private bool can_move;
 
     // Bool: Ship able to attack
     private bool can_attack;
+
 
     // Int: The player who owns the ship
     public int player;
@@ -22,6 +23,14 @@ public class Ship : MonoBehaviour {
     public string ship_facing;
 
     public bool selected = false;
+
+    //Stores the size of the object
+    public Vector3 size;
+
+    public GameObject shipInfoCanvas;
+
+    public int health = 100; //Temp thing for debugging attack;
+
 
     // Ship's dimensions
     struct coordinate
@@ -57,23 +66,38 @@ public class Ship : MonoBehaviour {
         // Select weapon from grid in UI -Joe       
     }
 
+    //Ships control when they get hit
+    public void Hit(Vector3 hit_pos)
+    {
+        Debug.Log(hit_pos);
+    }
+
     // Click a ship
     public void OnMouseOver()
     {
         if (Input.GetMouseButtonDown(0))
         {
+            //shipInfoCanvas.SetActive(true);
+
             ship_information.text = "This ship belongs to player " + player;
             selected = true;
         }
     }
 
-    public void Initialize(int _player, string _facing)
+    public void Initialize(int _player, string _facing, Vector3 ship)
     {
+        //shipInfoCanvas = GameObject.Find()
+        size = ship;
         player = _player;
         ship_facing = _facing;
         selected = false;
         ship_information = GameObject.FindGameObjectWithTag("ShipInfoText").GetComponent<Text>();
         
+    }
+
+    public void Attack()
+    {
+       
     }
 
 
