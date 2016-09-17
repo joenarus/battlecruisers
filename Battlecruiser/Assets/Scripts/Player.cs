@@ -13,14 +13,12 @@ public class Player : MonoBehaviour {
         id = _id;
     }
 
-
     public int actions
     {
         get { return _actions; }
         set { _actions = value; }
     }
     
-
     private List<Ship> ships
     {
         get { return _ships; }
@@ -41,10 +39,4 @@ public class Player : MonoBehaviour {
 	void Update () {
 	
 	}
-
-
-
-
-
-
 }

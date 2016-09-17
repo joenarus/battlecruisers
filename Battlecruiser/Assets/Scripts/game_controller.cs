@@ -13,6 +13,9 @@ public class game_controller : MonoBehaviour {
     Player player2;
 
     Player currentPlayerTurn;
+    
+    // Only type that changes is "hot seat" atm...
+    public string game_type;
 
     Vector3 attackCoordinate;
 
@@ -25,9 +28,17 @@ public class game_controller : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         status.text = "Turn: Player 1";
+        /*http://answers.unity3d.com/questions/653904/you-are-trying-to-create-a-monobehaviour-using-the-2.html
         player1 = new Player(1);
-        player2 = new Player(2);
+        player2 = new Player(2);*/
+        player1 = gameObject.AddComponent<Player>();
+        player1.id = 1;
+        player2 = gameObject.AddComponent<Player>();
+        player2.id = 2;
+
         currentPlayerTurn = player1;
+        // Firt turn needs actions or they just have to end turn
+        currentPlayerTurn.actions = 3;
     }
 	
 	// Update is called once per frame
@@ -51,7 +62,33 @@ public class game_controller : MonoBehaviour {
             currentPlayerTurn = player1;
             currentPlayerTurn.actions = 3;
         }
+
+        // Hides information from player, still needs to disable clicking on ships you can't see and
+        //  an inbetween ok button to toggle correctly
+        if (game_type == "hot seat")
+        {
+            Hide_Everything();
+            Change_Player_View(currentPlayerTurn.id);
+        }
     }
+
+    public void Hide_Everything()
+    {
+        foreach(Ship ship in battlefield.ships)
+        {
+            ship.transform.Find("Shape").gameObject.SetActive(false);
+        }
+    }
+
+    public void Change_Player_View(int player)
+    {
+        foreach(Ship ship in battlefield.ships)
+        {
+            if(ship.player == player)
+                ship.transform.Find("Shape").gameObject.SetActive(true);
+        }
+    }
+    
 
     public void moveForward()
     {
@@ -59,20 +96,22 @@ public class game_controller : MonoBehaviour {
         {
             Ship moving_ship = battlefield.get_selected_ship();
 
-            if (moving_ship != null)
+            if (Can_Move(new Vector3(0, 0, 1), moving_ship))
             {
-                Vector3 forward = moving_ship.transform.forward; //Grabs the direction //basically useless, but may come in handy 
-                if (moving_ship.player == currentPlayerTurn.id)
+                if (moving_ship != null)
                 {
-                    moving_ship.transform.Translate(0, 0, 1); //Always moves in the Z-axis
+                    Vector3 forward = moving_ship.transform.forward; //Grabs the direction //basically useless, but may come in handy 
+                    if (moving_ship.player == currentPlayerTurn.id)
+                    {
+                        moving_ship.transform.Translate(0, 0, 1); //Always moves in the Z-axis
 
-                    currentPlayerTurn.actions--;
+                        currentPlayerTurn.actions--;
+                    }
+                    else
+                    {
+                        moving_ship.ship_information.text = "That is not your ship.";
+                    }
                 }
-                else
-                {
-                    moving_ship.ship_information.text = "That is not your ship.";
-                }
-
             }
         }
     }
@@ -154,10 +193,32 @@ public class game_controller : MonoBehaviour {
         {
             //TODO: "COORDINATES ARE NOT IN RANGE"
         }
-
-
-
         attackCanvas.SetActive(false);
     }
-
+    public bool Can_Move(Vector3 destination, Ship ship)
+    {
+        // Check each moving block
+        foreach(Grid.Coordinate coord in battlefield.GetShipOccupation(ship.ship_number))
+        {
+            // Destination
+            Grid.Coordinate moving_to = new Grid.Coordinate(coord.x + (int)destination.x, coord.y + (int)destination.y, coord.z + (int)destination.z);
+            // Check if destination exists on Grid: in case it might move off the grid
+            if (battlefield.Contains(moving_to.x, moving_to.y, moving_to.z))
+            {
+                // Check if ship moving does not bump into a component of a different ship
+                if (battlefield.cell_list[moving_to.x, moving_to.y, moving_to.z].current_occupant != null)
+                {
+                    // Check if ship number is the same, if not illegal move would happen.
+                    if (battlefield.cell_list[moving_to.x, moving_to.y, moving_to.z].current_occupant.GetComponentInParent<Ship>().ship_number != ship.ship_number)
+                        return false;
+                }
+                // If Cell doesn't have another ship component, still check if it is occupied: Maybe a mine or a prob for instance
+                if (battlefield.cell_list[moving_to.x, moving_to.y, moving_to.z].occupied == true && battlefield.cell_list[moving_to.x, moving_to.y, moving_to.z].current_occupant == null)
+                    return false;
+            }
+            else
+                return false;
+        }
+        return true;
+    }
 }

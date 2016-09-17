@@ -9,6 +9,8 @@ public class Cell : MonoBehaviour {
 
 	public bool occupied; 
 	public bool visible;
+    public ShipComponent current_occupant;
+    public int hi;
 
 	//Various coordinate values of the cell numbered 1 - 6
 	private int x; 
@@ -33,6 +35,22 @@ public class Cell : MonoBehaviour {
 
         occupied = false;
         visible = false;
+    }
+    void OnTriggerExit(Collider ship_component)
+    {
+        if(ship_component.tag == "ShipCollider")
+        {
+            current_occupant = null;
+            occupied = false;
+        }
+    }
+    void OnTriggerEnter(Collider ship_comp)
+    {
+        if(ship_comp.tag == "ShipCollider")
+        {
+            current_occupant = ship_comp.gameObject.GetComponent<ShipComponent>();
+            occupied = true;
+        }
     }
 
 	public int get_x() {

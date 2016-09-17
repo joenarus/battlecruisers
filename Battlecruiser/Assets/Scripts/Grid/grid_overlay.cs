@@ -106,7 +106,6 @@ public class grid_overlay : MonoBehaviour
                     GL.Vertex3(startX + i, startY + j, startZ + gridSizeZ);
                 }
             }
-
             //Y axis lines
             for (float i = 0; i <= gridSizeZ; i += largeStep)
             {

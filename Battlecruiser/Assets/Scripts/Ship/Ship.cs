@@ -5,9 +5,14 @@ using UnityEngine.UI;
 
 public class Ship : MonoBehaviour {
 
-    List<ShipComponent> ship_components;
+    [SerializeField]
+    public ShipComponent[] ship_components;
+
     [SerializeField]
     public Text ship_information;
+
+    [SerializeField]
+    public coordinate[] ship_dimensions;
 
     // Bool: Ship able to move
     private bool can_move;
@@ -15,9 +20,11 @@ public class Ship : MonoBehaviour {
     // Bool: Ship able to attack
     private bool can_attack;
 
-
     // Int: The player who owns the ship
     public int player;
+
+    // Int: The number of the ship 
+    public int ship_number;
 
     // string: The way the ship is facing
     public string ship_facing;
@@ -33,16 +40,10 @@ public class Ship : MonoBehaviour {
 
 
     // Ship's dimensions
-    struct coordinate
+    public struct coordinate
     {
         int x, y, z;
     }
-
-    private coordinate ship_dimensions;
-
-    coordinate Ship_Dimensions
-    { get { return ship_dimensions; } }
-
 
     // Ship's Move property
     bool Can_Move
