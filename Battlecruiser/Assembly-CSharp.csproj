@@ -48,6 +48,7 @@
      <Compile Include="Assets\Scripts\Grid\Cell.cs" />
      <Compile Include="Assets\Scripts\Grid\Grid.cs" />
      <Compile Include="Assets\Scripts\Grid\grid_overlay.cs" />
+     <Compile Include="Assets\Scripts\Grid\onTrigger.cs" />
      <Compile Include="Assets\Scripts\Player.cs" />
      <Compile Include="Assets\Scripts\Ship\Ship.cs" />
      <Compile Include="Assets\Scripts\Ship\ShipComponent.cs" />

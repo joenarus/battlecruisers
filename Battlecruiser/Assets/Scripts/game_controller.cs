@@ -2,10 +2,13 @@
 using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.EventSystems;
 
 public class game_controller : MonoBehaviour {
 
     public Grid battlefield;
+
+    public Camera mainCam;
 
     public int gamePhase = 0; // 1 = Ship placement, 2 = mainphase
 
@@ -25,8 +28,13 @@ public class game_controller : MonoBehaviour {
 
     public GameObject bullet;
 
-	// Use this for initialization
-	void Start () {
+    GameObject selected_ship;
+    Ship selected_ship_script;
+    Renderer selected_ship_render;
+
+
+    // Use this for initialization
+    void Start () {
         status.text = "Turn: Player 1";
         /*http://answers.unity3d.com/questions/653904/you-are-trying-to-create-a-monobehaviour-using-the-2.html
         player1 = new Player(1);
@@ -43,15 +51,72 @@ public class game_controller : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+        if (Input.GetMouseButtonDown(0)) //This whole bit handles selecting ships now.
+        {
+            bool found = false; 
+            RaycastHit[] hits;
+            Ray ray = mainCam.ScreenPointToRay(Input.mousePosition);
+            hits = Physics.RaycastAll(ray, 100.0f);
+            for (int i = 0; i < hits.Length; i++)
+            {
+                RaycastHit hit = hits[i];
+
+                if(hit.transform.tag == "Ship") //Tags ships
+                {
+                    if (selected_ship_script != null)
+                    {
+                        UnselectShip();
+                    }
+                    found = true;
+
+                    
+                    selected_ship_script = hit.transform.GetComponent<Ship>();
+                    selected_ship = hit.transform.gameObject;
+                    selected_ship_render = selected_ship.GetComponentInChildren<Renderer>();
+                    selected_ship_render.material.shader = Shader.Find("Self-Illumin/Outlined Diffuse");
+                    selected_ship_script.selected = true;
+                }
+            }
+            if (!EventSystem.current.IsPointerOverGameObject()) {
+                if (!found && selected_ship_script != null)
+                {
+                    UnselectShip();
+                }
+            }
+             
+            
+        }
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (selected_ship_script != null)
+            {
+                UnselectShip();
+            }
+        }
         
+    }
+
+    public void UnselectShip()
+    {
+
+        selected_ship_render.material.shader = Shader.Find("Standard");
+        selected_ship = null;
+        selected_ship_render = null;
+        selected_ship_script.selected = false;
+        selected_ship_script = null;
+
     }
 
     public void turn_change()
     {
+        if(selected_ship_script != null)
+        {
+            UnselectShip();
+        }
+
         if (currentPlayerTurn.id == 1)
         {
             status.text = "Turn: Player 2";
-            
             currentPlayerTurn = player2;
             currentPlayerTurn.actions = 3;
 
@@ -94,22 +159,20 @@ public class game_controller : MonoBehaviour {
     {
         if (currentPlayerTurn.actions != 0)
         {
-            Ship moving_ship = battlefield.get_selected_ship();
-
-            if (Can_Move(new Vector3(0, 0, 1), moving_ship))
+            if (selected_ship_script != null)
             {
-                if (moving_ship != null)
+                if (Can_Move(new Vector3(0, 0, 1), this.selected_ship_script))
                 {
-                    Vector3 forward = moving_ship.transform.forward; //Grabs the direction //basically useless, but may come in handy 
-                    if (moving_ship.player == currentPlayerTurn.id)
+                    Vector3 forward = selected_ship_script.transform.forward; //Grabs the direction //basically useless, but may come in handy 
+                    if (selected_ship_script.player == currentPlayerTurn.id)
                     {
-                        moving_ship.transform.Translate(0, 0, 1); //Always moves in the Z-axis
+                        selected_ship_script.transform.Translate(0, 0, 1); //Always moves in the Z-axis
 
                         currentPlayerTurn.actions--;
                     }
                     else
                     {
-                        moving_ship.ship_information.text = "That is not your ship.";
+                        selected_ship_script.ship_information.text = "That is not your ship.";
                     }
                 }
             }
@@ -122,18 +185,17 @@ public class game_controller : MonoBehaviour {
     {
         if (currentPlayerTurn.actions != 0)
         {
-            Ship moving_ship = battlefield.get_selected_ship();
-            if (moving_ship != null)
+            if (selected_ship_script != null)
             {
-                if (moving_ship.player == currentPlayerTurn.id)
+                if (selected_ship_script.player == currentPlayerTurn.id)
                 {
                     if (x == 1)
                     {
-                        moving_ship.transform.Rotate(0, 90, 0);
+                        selected_ship_script.transform.Rotate(0, 90, 0);
                     }
                     if (x == 2)
                     {
-                        moving_ship.transform.Rotate(0, -90, 0);
+                        selected_ship_script.transform.Rotate(0, -90, 0);
                     }
 
                     currentPlayerTurn.actions--;
@@ -141,7 +203,7 @@ public class game_controller : MonoBehaviour {
                 }
                 else
                 {
-                    moving_ship.ship_information.text = "That is not your ship.";
+                    selected_ship_script.ship_information.text = "That is not your ship.";
                 }
 
             }
@@ -154,10 +216,9 @@ public class game_controller : MonoBehaviour {
         attackCanvas.SetActive(true);
         if (currentPlayerTurn.actions != 0)
         {
-            Ship attack_ship = battlefield.get_selected_ship();
-            if (attack_ship != null && attack_ship.player == currentPlayerTurn.id)
+            if (selected_ship_script != null && selected_ship_script.player == currentPlayerTurn.id)
             {
-                attackCoordinate = attack_ship.transform.position;
+                attackCoordinate = selected_ship_script.transform.position;
                 Debug.Log(attackCoordinate);
             }
         }
@@ -184,9 +245,9 @@ public class game_controller : MonoBehaviour {
         if(battlefield.Contains(x,y,z))
         {
 
-            GameObject temp = Object.Instantiate(bullet, new Vector3(), Quaternion.identity, gameObject.transform) as GameObject;
+            GameObject temp = Object.Instantiate(bullet, selected_ship.transform.position, Quaternion.identity, GameObject.Find("MineYard").transform) as GameObject;
 
-            temp.GetComponent<Shoot>().Initialize(10,attackCoordinate, new Vector3(x + .5f,y+.5f,z+.5f), currentPlayerTurn.id);
+            temp.GetComponent<Shoot>().Initialize(10,selected_ship.transform.position, new Vector3(x + .5f,y+.5f,z+.5f), currentPlayerTurn.id);
             temp.name = "currentlyActiveMine";
         }
         else

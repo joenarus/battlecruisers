@@ -5,12 +5,14 @@ using System;
 public class Grid : MonoBehaviour {
 
 	public List<Cell> cells;
-    public grid_overlay highlights;
 
     public GameObject cell;
     public GameObject shipType1;
     public GameObject shipType2;
     public GameObject shipType3;
+    public GameObject gridPlane;
+    public Camera maincam;
+
 
     // Keeps track of the number of ships placed
     public int ships_placed;
@@ -72,9 +74,7 @@ public class Grid : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        highlights.gridSizeX = x_columns;
-        highlights.gridSizeY = y_columns;
-        highlights.gridSizeZ = z_columns;
+        
 
         // list of all the cells
         cell_list = new Cell[x_columns, y_columns, z_columns];
@@ -104,10 +104,6 @@ public class Grid : MonoBehaviour {
         placeShip(2, 1, 1, 1, "forward", shipType2);
         placeShip(2, 3, 3, 3, "forward", shipType3);
 
-
-
-        //ships[0].transform.position = cell_list[0, 0, 0].transform.position;
-        //ships[1].transform.position = cell_list[0, 1, 1].transform.position;
     }
 
     void placeShip(int owner, int posX, int posY, int posZ, string direction, GameObject shipPrefab)
@@ -119,19 +115,7 @@ public class Grid : MonoBehaviour {
         ships.Add(tempS);
         tempS.ship_number = ships_placed++;
         tempS.name = "Player " + tempS.player + " Number: " + tempS.ship_number;
-        /*
-        for(int i = 0; i < dimensions.x - .5; i++)
-        {
-            for(int j = 0; j < dimensions.y - .5; j++)
-            {
-                for(int k = 0; k < dimensions.z - .5; k ++)
-                {
-                    // We have to talk about this.
-                    cell_list[posX + i, posY + j, posZ + k].occupied = true; //Iterates through dimensions and occupies the proper cells.
-                }
-            }
-        }     */
-        //TODO: Add other dimensions to occupied
+        
     }
 
     public Ship get_selected_ship()
@@ -151,6 +135,25 @@ public class Grid : MonoBehaviour {
     void Update()
     {
 
+        if (Input.GetKeyDown("up"))
+            if (gridPlane.transform.position.y < 7)
+                gridPlane.transform.position += Vector3.up;
+
+        if (Input.GetKeyDown("down"))
+            if (gridPlane.transform.position.y > 0)
+                gridPlane.transform.position += Vector3.down;
+
+        if (Input.GetAxis("Mouse ScrollWheel") > 0f) // forward
+        {
+            if (gridPlane.transform.position.y < 7)
+                gridPlane.transform.position += Vector3.up;
+        }
+        else if (Input.GetAxis("Mouse ScrollWheel") < 0f) // backwards
+        {
+            if (gridPlane.transform.position.y > 0)
+                gridPlane.transform.position += Vector3.down;
+        }
+        
     }
     // Properties?
     /* Ex:

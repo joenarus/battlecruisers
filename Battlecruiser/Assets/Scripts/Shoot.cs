@@ -30,13 +30,15 @@ public class Shoot : MonoBehaviour {
     {
         if(other.name.Contains("Ship"))
         {
-            Ship s = other.GetComponent<Ship>();
-            if (s.player != player)
+            if (player != other.GetComponentInParent<Ship>().player)
             {
-                s.Hit(transform.position);
+                Debug.Log(other.name);
                 Debug.Log("HIT");
+                other.GetComponent<ShipComponent>().operationable = true; //Temporary until we flip it... REGISTERS HIT TO THE GIVEN SHIP COMPONENT\
+                Debug.Log(other.transform.position); //Position of HIT (subtract .5 from x,y, and z to get the correct coordinate)
                 Destroy(transform.gameObject);
             }
+
         }
     }
 	
