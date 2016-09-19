@@ -35,6 +35,12 @@ public class Grid : MonoBehaviour {
             this.z = z;
         }
 
+        public bool Equals(Coordinate other)
+        {
+            bool areEqual = (x == other.x) && (y == other.y) && (z == other.z);
+            return areEqual;
+        }
+
         public override bool Equals(object other)
         {
             if (other.GetType() != typeof(Coordinate))
@@ -47,19 +53,9 @@ public class Grid : MonoBehaviour {
             return Equals(coord);
         }
 
-        public static bool operator ==(Coordinate c1, Coordinate c2)
-        {
-            return c1.Equals(c2);
-        }
-
-        public static bool operator !=(Coordinate c1, Coordinate c2)
-        {
-            return !c1.Equals(c2);
-        }
-
         override public int GetHashCode()
         {
-            return (x.GetHashCode() ^ y.GetHashCode() ^ z.GetHashCode());
+            return (x ^ y ^ z);
         }
     }
 
@@ -100,8 +96,8 @@ public class Grid : MonoBehaviour {
         // Placement of ships
         // Example of how ships can be placed
 
-        placeShip(1, 0, 0, 0, "forward", shipType1);
-        placeShip(2, 1, 1, 1, "forward", shipType2);
+        placeShip(1, 1, 0, 0, "forward", shipType1);
+        placeShip(2, 0, 0, 2, "forward", shipType2);
         placeShip(2, 3, 3, 3, "forward", shipType3);
 
     }
@@ -208,8 +204,8 @@ public class Grid : MonoBehaviour {
                 if (cell.current_occupant.GetComponentInParent<Ship>().ship_number == ship_number)
                 {
                     // Set value of coordinates of ship
-                    Coordinate temp = new Coordinate((int)char.GetNumericValue(cell.name[1]), 
-                        (int)char.GetNumericValue(cell.name[3]), (int)char.GetNumericValue(cell.name[5]));
+                    Coordinate temp = new Coordinate((int)cell.transform.position.x, 
+                        (int)cell.transform.position.y, (int)cell.transform.position.z);
                     to_return.Add(temp);
                 }
             }
@@ -309,29 +305,23 @@ public class Grid : MonoBehaviour {
         return null;
     }
 
-    public IEnumerable<Coordinate> GetCellsInRange(Coordinate coord, Func<Coordinate, bool> isAsscessable, int range)
+    public IEnumerable<Coordinate> GetCellsInRange(Coordinate coord, int range)
     {
-        HashSet<Coordinate> to_return = new HashSet<Coordinate>();     
-        HashSet<Coordinate> neighbor_list = new HashSet<Coordinate>();
+        HashSet<Coordinate> to_return = new HashSet<Coordinate>();
+        Queue<Coordinate> neighbor_list = new Queue<Coordinate>();
 
-        foreach(Coordinate c in GetNeighbors(coord))
+        neighbor_list.Enqueue(coord);
+        while(neighbor_list.Count > 0)
         {
-            neighbor_list.Add(c);
-        }
-        
-        for(int i = 0; i < range; i++)
-        {
-            foreach (Coordinate c in neighbor_list)
+            var current = neighbor_list.Dequeue();
+            to_return.Add(current);
+            range--;
+            foreach(Coordinate c in GetNeighbors(current))
             {
                 to_return.Add(c);
-            }
-
-            neighbor_list.Clear();
-
-            foreach(Coordinate c in neighbor_list)
-            {
-                neighbor_list.Add(c);
-            }
+                if(range > 0)
+                    neighbor_list.Enqueue(c);
+            }        
         }
         return to_return;
     }

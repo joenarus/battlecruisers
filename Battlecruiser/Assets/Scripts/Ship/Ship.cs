@@ -29,6 +29,8 @@ public class Ship : MonoBehaviour {
     // string: The way the ship is facing
     public string ship_facing;
 
+    public bool can_select;
+
     public bool selected = false;
 
     //Stores the size of the object

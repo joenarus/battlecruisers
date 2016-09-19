@@ -7,8 +7,9 @@ using System.Collections;
  */
 public class Cell : MonoBehaviour {
 
-	public bool occupied; 
-	public bool visible;
+	public bool occupied;
+    // records 0 for not visible, or 1 and 2 to depict the player who can see it on their turn 
+	public int visible;
     public ShipComponent current_occupant;
     public int hi;
 
@@ -24,7 +25,7 @@ public class Cell : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-	
+
 	}
 
     public void Initialize(int _x, int _y, int _z)
@@ -34,7 +35,7 @@ public class Cell : MonoBehaviour {
         z = _z;
 
         occupied = false;
-        visible = false;
+        visible = 0;
     }
     void OnTriggerExit(Collider ship_component)
     {

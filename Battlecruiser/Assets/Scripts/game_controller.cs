@@ -51,6 +51,10 @@ public class game_controller : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+
+        UpdateCellViewValues();
+        UpdatePlayerVision();
+
         if (Input.GetMouseButtonDown(0)) //This whole bit handles selecting ships now.
         {
             bool found = false; 
@@ -63,18 +67,23 @@ public class game_controller : MonoBehaviour {
 
                 if(hit.transform.tag == "Ship") //Tags ships
                 {
-                    if (selected_ship_script != null)
+                    // Check for clicking invisble ships
+                    if (hit.transform.Find("Shape").gameObject.activeInHierarchy)
                     {
-                        UnselectShip();
-                    }
-                    found = true;
+                        if (selected_ship_script != null)
+                        {
+                            UnselectShip();
+                        }
+                        found = true;
 
-                    
-                    selected_ship_script = hit.transform.GetComponent<Ship>();
-                    selected_ship = hit.transform.gameObject;
-                    selected_ship_render = selected_ship.GetComponentInChildren<Renderer>();
-                    selected_ship_render.material.shader = Shader.Find("Self-Illumin/Outlined Diffuse");
-                    selected_ship_script.selected = true;
+
+
+                        selected_ship_script = hit.transform.GetComponent<Ship>();
+                        selected_ship = hit.transform.gameObject;
+                        selected_ship_render = selected_ship.GetComponentInChildren<Renderer>();
+                        selected_ship_render.material.shader = Shader.Find("Self-Illumin/Outlined Diffuse");
+                        selected_ship_script.selected = true;
+                    }
                 }
             }
             if (!EventSystem.current.IsPointerOverGameObject()) {
@@ -114,6 +123,8 @@ public class game_controller : MonoBehaviour {
             UnselectShip();
         }
 
+        BetweenTurnView();
+
         if (currentPlayerTurn.id == 1)
         {
             status.text = "Turn: Player 2";
@@ -128,6 +139,14 @@ public class game_controller : MonoBehaviour {
             currentPlayerTurn.actions = 3;
         }
 
+        foreach(Ship ship in battlefield.ships)
+        {
+            if (ship.player != currentPlayerTurn.id)
+                ship.can_select = false;
+            else
+                ship.can_select = true;
+        }
+
         // Hides information from player, still needs to disable clicking on ships you can't see and
         //  an inbetween ok button to toggle correctly
         if (game_type == "hot seat")
@@ -135,6 +154,9 @@ public class game_controller : MonoBehaviour {
             Hide_Everything();
             Change_Player_View(currentPlayerTurn.id);
         }
+
+        UpdateCellViewValues();
+        UpdatePlayerVision();
     }
 
     public void Hide_Everything()
@@ -153,7 +175,52 @@ public class game_controller : MonoBehaviour {
                 ship.transform.Find("Shape").gameObject.SetActive(true);
         }
     }
-    
+    // Clears board for an end of turn transition
+    public void BetweenTurnView()
+    {
+        // On change of turn, hide all information
+        foreach (Cell c in battlefield.cell_list)
+        {
+            c.visible = 0;
+        }
+    }
+
+    // updates the view of the player 
+    public void UpdateCellViewValues()
+    {
+        // Change cell visibility
+        // For each ship on the battle field
+        foreach (Ship ship in battlefield.ships)
+        {
+            if (ship.player == currentPlayerTurn.id)
+            {
+                // For each ship component on that ship
+                foreach (Grid.Coordinate coord in battlefield.GetShipOccupation(ship.ship_number))
+                {
+                    // For all cells in range of that component
+                    foreach (Grid.Coordinate coord1 in
+                        battlefield.GetCellsInRange(coord, battlefield.cell_list[coord.x, coord.y, coord.z].current_occupant.GetComponent<ShipComponent>().vision))
+                    {
+                        battlefield.cell_list[coord1.x, coord1.y, coord1.z].visible = currentPlayerTurn.id;
+                    }
+                }
+            }
+        }
+    }
+
+    public void UpdatePlayerVision()
+    {
+        // Update Vision
+        foreach (Cell cell in battlefield.cell_list)
+        {
+            if (cell.visible == currentPlayerTurn.id && cell.current_occupant != null)
+                if(cell.current_occupant.GetComponentInParent<Ship>().player != currentPlayerTurn.id)
+                    cell.transform.Find("Cube").gameObject.SetActive(true);
+            if(cell.current_occupant != null)
+                if (cell.current_occupant.GetComponentInParent<Ship>().player == currentPlayerTurn.id)
+                    cell.transform.Find("Cube").gameObject.SetActive(false); 
+        }
+    }
 
     public void moveForward()
     {

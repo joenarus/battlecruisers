@@ -15,7 +15,7 @@ public class ShipComponent : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-	
+        vision = 2;
 	}
 	
 	// Update is called once per frame
