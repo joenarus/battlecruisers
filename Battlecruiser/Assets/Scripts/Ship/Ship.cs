@@ -87,12 +87,12 @@ public class Ship : MonoBehaviour {
         }
     }
 
-    public void Initialize(int _player, string _facing, Vector3 ship)
+    public void Initialize(int _player, Vector3 ship)
     {
         //shipInfoCanvas = GameObject.Find()
         size = ship;
         player = _player;
-        ship_facing = _facing;
+       // ship_facing = _facing;
         selected = false;
         ship_information = GameObject.FindGameObjectWithTag("ShipInfoText").GetComponent<Text>();
         

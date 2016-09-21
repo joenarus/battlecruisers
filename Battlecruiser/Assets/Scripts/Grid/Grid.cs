@@ -10,9 +10,12 @@ public class Grid : MonoBehaviour {
     public GameObject shipType1;
     public GameObject shipType2;
     public GameObject shipType3;
+    public GameObject shipType4;
+
     public GameObject gridPlane;
     public Camera maincam;
 
+    public GameObject selected_level;
 
     // Keeps track of the number of ships placed
     public int ships_placed;
@@ -96,9 +99,15 @@ public class Grid : MonoBehaviour {
         // Placement of ships
         // Example of how ships can be placed
 
-        placeShip(1, 1, 0, 0, "forward", shipType1);
-        placeShip(2, 0, 0, 2, "forward", shipType2);
-        placeShip(2, 3, 3, 3, "forward", shipType3);
+        placeShip(1, 4, 4, 4, "forward", shipType1);
+        placeShip(1, 3, 2, 5, "forward", shipType2);
+        placeShip(1, 4, 6, 3, "forward", shipType3);
+        placeShip(1, 3, 0, 0, "forward", shipType4);
+
+        placeShip(2, 3, 3, 8, "backward", shipType1);
+        placeShip(2, 3, 2, 9, "backward", shipType2);
+        placeShip(2, 4, 6, 10, "backward", shipType3);
+        placeShip(2, 5, 5, 13, "backward", shipType4);
 
     }
 
@@ -107,7 +116,19 @@ public class Grid : MonoBehaviour {
         GameObject newShip = UnityEngine.Object.Instantiate(shipPrefab, new Vector3(posX + 0.5f, posY + 0.5f, posZ + 0.5f), Quaternion.identity, GameObject.Find("ShipYard").transform) as GameObject;
         Ship tempS = newShip.GetComponent<Ship>();
         Vector3 dimensions = shipPrefab.GetComponentInChildren<MeshRenderer>().bounds.size;
-        tempS.Initialize(owner, direction, dimensions);
+        if(direction == "backward")
+        {
+            newShip.transform.Rotate(0,180,0);
+        }
+        if(direction == "right")
+        {
+            newShip.transform.Rotate(0, 90, 0);
+        }
+        if (direction == "left")
+        {
+            newShip.transform.Rotate(0, -90, 0);
+        }
+        tempS.Initialize(owner, dimensions);
         ships.Add(tempS);
         tempS.ship_number = ships_placed++;
         tempS.name = "Player " + tempS.player + " Number: " + tempS.ship_number;
@@ -133,8 +154,11 @@ public class Grid : MonoBehaviour {
 
         if (Input.GetKeyDown("up"))
             if (gridPlane.transform.position.y < 7)
+            {
+                float prev_level = gridPlane.transform.position.y;
                 gridPlane.transform.position += Vector3.up;
-
+               // highlight_level(gridPlane.transform.position.y, prev_level);
+            }
         if (Input.GetKeyDown("down"))
             if (gridPlane.transform.position.y > 0)
                 gridPlane.transform.position += Vector3.down;
@@ -159,6 +183,25 @@ public class Grid : MonoBehaviour {
         set { x_colums = value; }
     }
     */
+
+    public void highlight_level(float grid_level, float previous_level)
+    {
+        for (int i = 0; i < 8; i++)
+        {
+            for (int j = 0; j < 16; j++) {
+                string name = "(" + i + "," + grid_level + "," + j + ")";
+                GameObject tempCell = GameObject.Find("(" + i + "," + grid_level + ","+j + ")");
+                Debug.Log(tempCell.name);
+                
+                Renderer temp_cell_renderer = tempCell.GetComponentInChildren<Renderer>();
+                Debug.Log(temp_cell_renderer);
+                temp_cell_renderer.material.shader = Shader.Find("Self-Illumin/Outlined Diffuse");
+                //selected_ship_render = selected_ship.GetComponentInChildren<Renderer>();
+                //selected_ship_render.material.shader = Shader.Find("Self-Illumin/Outlined Diffuse");
+            }
+        }
+        
+    }
 
     public void set_x_columns(int _x)
     {

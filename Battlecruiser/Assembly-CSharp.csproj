@@ -45,8 +45,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Prefabs\Ships\Ships\Prefabs\SetPivot.cs" />
      <Compile Include="Assets\Scripts\Grid\Cell.cs" />
      <Compile Include="Assets\Scripts\Grid\Grid.cs" />
+     <Compile Include="Assets\Scripts\Grid\RangeTest.cs" />
      <Compile Include="Assets\Scripts\Grid\grid_overlay.cs" />
      <Compile Include="Assets\Scripts\Grid\onTrigger.cs" />
      <Compile Include="Assets\Scripts\Player.cs" />

@@ -10,6 +10,8 @@ public class game_controller : MonoBehaviour {
 
     public Camera mainCam;
 
+    public GameObject camera;
+    bool toggleCam = false;
     public int gamePhase = 0; // 1 = Ship placement, 2 = mainphase
 
     Player player1;
@@ -76,8 +78,6 @@ public class game_controller : MonoBehaviour {
                         }
                         found = true;
 
-
-
                         selected_ship_script = hit.transform.GetComponent<Ship>();
                         selected_ship = hit.transform.gameObject;
                         selected_ship_render = selected_ship.GetComponentInChildren<Renderer>();
@@ -113,6 +113,24 @@ public class game_controller : MonoBehaviour {
         selected_ship_render = null;
         selected_ship_script.selected = false;
         selected_ship_script = null;
+
+    }
+
+    public void camera_change()
+    {
+        
+        if(toggleCam)
+        {
+            camera.transform.position = new Vector3(-10, 9, 8);
+            camera.transform.Rotate(30,180,0);
+            toggleCam = false;
+        }
+        else
+        {
+            camera.transform.position = new Vector3(18, 9, 8);
+            camera.transform.Rotate(30, 180, 0);
+            toggleCam = true;
+        }
 
     }
 
