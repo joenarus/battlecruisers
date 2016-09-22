@@ -13,6 +13,8 @@ public class Cell : MonoBehaviour {
     public ShipComponent current_occupant;
     public int hi;
 
+    public Material when_hit;
+
 	//Various coordinate values of the cell numbered 1 - 6
 	private int x; 
 	private int y;
@@ -25,7 +27,11 @@ public class Cell : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-
+        if (current_occupant != null && current_occupant.hit)
+        {
+            gameObject.transform.Find("Cube").transform.GetComponent<MeshRenderer>().material =
+                gameObject.transform.Find("Cube").transform.GetComponent<MeshRenderer>().materials[1];
+        }
 	}
 
     public void Initialize(int _x, int _y, int _z)

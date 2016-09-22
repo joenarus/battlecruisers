@@ -4,7 +4,7 @@ using System.Collections;
 public class ShipComponent : MonoBehaviour {
 
     // Keeps track if component has been destroyed or not
-    public bool operationable;
+    public bool hit;
 
     public bool is_pivot;
 

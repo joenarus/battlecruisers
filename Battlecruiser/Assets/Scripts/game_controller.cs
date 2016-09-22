@@ -27,6 +27,8 @@ public class game_controller : MonoBehaviour {
     //GUI
     public GameObject attackCanvas;
     public Text status;  //Currently displays player's turn 
+    public GameObject turn_indicator; // Player Transition Screen
+    public bool between_turns = true;
 
     public GameObject bullet;
 
@@ -35,28 +37,36 @@ public class game_controller : MonoBehaviour {
     Renderer selected_ship_render;
 
 
+
     // Use this for initialization
     void Start () {
         status.text = "Turn: Player 1";
-        /*http://answers.unity3d.com/questions/653904/you-are-trying-to-create-a-monobehaviour-using-the-2.html
-        player1 = new Player(1);
-        player2 = new Player(2);*/
         player1 = gameObject.AddComponent<Player>();
         player1.id = 1;
         player2 = gameObject.AddComponent<Player>();
         player2.id = 2;
-
+        
         currentPlayerTurn = player1;
         // Firt turn needs actions or they just have to end turn
         currentPlayerTurn.actions = 3;
+
+        // Turn indicator for hot seat
+        if (game_type == "hot seat")
+        {
+
+            turn_indicator.SetActive(true);
+        }
     }
 	
 	// Update is called once per frame
 	void Update () {
-
-        UpdateCellViewValues();
-        UpdatePlayerVision();
-
+        if (between_turns)
+            Hide_Everything();
+        else
+        {
+            UpdatePlayerVision();
+            UpdateCellViewValues();
+        }
         if (Input.GetMouseButtonDown(0)) //This whole bit handles selecting ships now.
         {
             bool found = false; 
@@ -136,6 +146,8 @@ public class game_controller : MonoBehaviour {
 
     public void turn_change()
     {
+        // Between Turns
+        between_turns = false;
         if(selected_ship_script != null)
         {
             UnselectShip();
@@ -157,6 +169,7 @@ public class game_controller : MonoBehaviour {
             currentPlayerTurn.actions = 3;
         }
 
+        
         foreach(Ship ship in battlefield.ships)
         {
             if (ship.player != currentPlayerTurn.id)
@@ -173,8 +186,9 @@ public class game_controller : MonoBehaviour {
             Change_Player_View(currentPlayerTurn.id);
         }
 
-        UpdateCellViewValues();
         UpdatePlayerVision();
+        UpdateCellViewValues();
+
     }
 
     public void Hide_Everything()
@@ -231,6 +245,10 @@ public class game_controller : MonoBehaviour {
         // Update Vision
         foreach (Cell cell in battlefield.cell_list)
         {
+            if (cell.current_occupant != null)
+                if (currentPlayerTurn.id != cell.current_occupant.GetComponentInParent<Ship>().player && cell.current_occupant.GetComponent<ShipComponent>().hit)
+                    cell.transform.Find("Cube").gameObject.SetActive(true);
+
             if (cell.visible == currentPlayerTurn.id && cell.current_occupant != null)
                 if(cell.current_occupant.GetComponentInParent<Ship>().player != currentPlayerTurn.id)
                     cell.transform.Find("Cube").gameObject.SetActive(true);
@@ -246,13 +264,12 @@ public class game_controller : MonoBehaviour {
         {
             if (selected_ship_script != null)
             {
-                if (Can_Move(new Vector3(0, 0, 1), this.selected_ship_script))
+                if (Can_Move(selected_ship_script.transform.forward, this.selected_ship_script))
                 {
                     Vector3 forward = selected_ship_script.transform.forward; //Grabs the direction //basically useless, but may come in handy 
                     if (selected_ship_script.player == currentPlayerTurn.id)
                     {
                         selected_ship_script.transform.Translate(0, 0, 1); //Always moves in the Z-axis
-
                         currentPlayerTurn.actions--;
                     }
                     else
@@ -341,6 +358,25 @@ public class game_controller : MonoBehaviour {
         }
         attackCanvas.SetActive(false);
     }
+
+    public void Hot_Seat_Between_Turns()
+    {
+        if (game_type != "hot seat")
+            return;
+
+        if (between_turns)
+        {
+            between_turns = false;
+            Change_Player_View(currentPlayerTurn.id);
+        }
+        else
+        {
+            turn_indicator.SetActive(true);
+            turn_indicator.GetComponentInChildren<Text>().text = "Player " + currentPlayerTurn.id + "'s Turn";
+            between_turns = true;
+        }
+    }
+
     public bool Can_Move(Vector3 destination, Ship ship)
     {
         // Check each moving block

@@ -9,7 +9,7 @@ public class Grid : MonoBehaviour {
     public GameObject cell;
     public GameObject shipType1;
     public GameObject shipType2;
-    public GameObject shipType3;
+    public GameObject scoutShip;
     public GameObject shipType4;
 
     public GameObject gridPlane;
@@ -99,16 +99,11 @@ public class Grid : MonoBehaviour {
         // Placement of ships
         // Example of how ships can be placed
 
-        placeShip(1, 4, 4, 4, "forward", shipType1);
-        placeShip(1, 3, 2, 5, "forward", shipType2);
-        placeShip(1, 4, 6, 3, "forward", shipType3);
-        placeShip(1, 3, 0, 0, "forward", shipType4);
+        placeShip(1, 0, 3, 0, "forward", scoutShip);
+        placeShip(1, 3, 0, 0, "farward", shipType4);
 
-        placeShip(2, 3, 3, 8, "backward", shipType1);
-        placeShip(2, 3, 2, 9, "backward", shipType2);
-        placeShip(2, 4, 6, 10, "backward", shipType3);
-        placeShip(2, 5, 5, 13, "backward", shipType4);
-
+        placeShip(2, 3, 4, 14, "backward", shipType4);
+        placeShip(2, 0, 1, 14, "backward", scoutShip);
     }
 
     void placeShip(int owner, int posX, int posY, int posZ, string direction, GameObject shipPrefab)
