@@ -15,7 +15,7 @@ public class game_controller : MonoBehaviour {
     public int gamePhase = 0; // 1 = Ship placement, 2 = mainphase
 
     Player player1;
-    Player player2;
+    AI player2;
 
     Player currentPlayerTurn;
     
@@ -23,7 +23,7 @@ public class game_controller : MonoBehaviour {
     public string game_type;
 
     Vector3 attackCoordinate;
-
+    bool attacking = false;
     //GUI
     public GameObject attackCanvas;
     public Text status;  //Currently displays player's turn 
@@ -43,7 +43,7 @@ public class game_controller : MonoBehaviour {
         status.text = "Turn: Player 1";
         player1 = gameObject.AddComponent<Player>();
         player1.id = 1;
-        player2 = gameObject.AddComponent<Player>();
+        player2 = gameObject.AddComponent<AI>();
         player2.id = 2;
         
         currentPlayerTurn = player1;
@@ -56,6 +56,7 @@ public class game_controller : MonoBehaviour {
 
             turn_indicator.SetActive(true);
         }
+        
     }
 	
 	// Update is called once per frame
@@ -67,6 +68,7 @@ public class game_controller : MonoBehaviour {
             UpdatePlayerVision();
             UpdateCellViewValues();
         }
+        
         if (Input.GetMouseButtonDown(0)) //This whole bit handles selecting ships now.
         {
             bool found = false; 
@@ -77,7 +79,7 @@ public class game_controller : MonoBehaviour {
             {
                 RaycastHit hit = hits[i];
 
-                if(hit.transform.tag == "Ship") //Tags ships
+                if(hit.transform.tag == "Ship" && !found && !attacking) //Tags ships
                 {
                     // Check for clicking invisble ships
                     if (hit.transform.Find("Shape").gameObject.activeInHierarchy)
@@ -95,6 +97,20 @@ public class game_controller : MonoBehaviour {
                         selected_ship_script.selected = true;
                     }
                 }
+
+                if (attacking && hit.transform.tag == "Cell" ) //Tags ships
+                {
+
+                    // Clicking a highlighted cell
+                    
+                    Debug.Log(hit.point);
+                    int _x = (int)(hit.point.x);
+                    int _y = (int)(hit.point.y);
+                    int _z = (int)(hit.point.z);
+                    LaunchAttack(_x,_y,_z);
+                }
+
+
             }
             if (!EventSystem.current.IsPointerOverGameObject()) {
                 if (!found && selected_ship_script != null)
@@ -160,13 +176,17 @@ public class game_controller : MonoBehaviour {
             status.text = "Turn: Player 2";
             currentPlayerTurn = player2;
             currentPlayerTurn.actions = 3;
+            player2.is_turn = true;
+           
 
         }
         else
         {
             status.text = "Turn: Player 1";
             currentPlayerTurn = player1;
+            player2.is_turn = false;
             currentPlayerTurn.actions = 3;
+            
         }
 
         
@@ -230,7 +250,7 @@ public class game_controller : MonoBehaviour {
                 foreach (Grid.Coordinate coord in battlefield.GetShipOccupation(ship.ship_number))
                 {
                     // For all cells in range of that component
-                    foreach (Grid.Coordinate coord1 in
+                    foreach (Grid.Coordinate coord1 in 
                         battlefield.GetCellsInRange(coord, battlefield.cell_list[coord.x, coord.y, coord.z].current_occupant.GetComponent<ShipComponent>().vision))
                     {
                         battlefield.cell_list[coord1.x, coord1.y, coord1.z].visible = currentPlayerTurn.id;
@@ -245,13 +265,19 @@ public class game_controller : MonoBehaviour {
         // Update Vision
         foreach (Cell cell in battlefield.cell_list)
         {
+            //Debug.Log(cell.current_occupant);
             if (cell.current_occupant != null)
+            {
                 if (currentPlayerTurn.id != cell.current_occupant.GetComponentInParent<Ship>().player && cell.current_occupant.GetComponent<ShipComponent>().hit)
                     cell.transform.Find("Cube").gameObject.SetActive(true);
+            }
 
             if (cell.visible == currentPlayerTurn.id && cell.current_occupant != null)
-                if(cell.current_occupant.GetComponentInParent<Ship>().player != currentPlayerTurn.id)
+            {
+                if (cell.current_occupant.GetComponentInParent<Ship>().player != currentPlayerTurn.id)
                     cell.transform.Find("Cube").gameObject.SetActive(true);
+                
+            }
             if(cell.current_occupant != null)
                 if (cell.current_occupant.GetComponentInParent<Ship>().player == currentPlayerTurn.id)
                     cell.transform.Find("Cube").gameObject.SetActive(false); 
@@ -315,6 +341,7 @@ public class game_controller : MonoBehaviour {
     //x = 2: Probe
     public void Attack(int x)
     {
+        attacking = true;
         attackCanvas.SetActive(true);
         if (currentPlayerTurn.actions != 0)
         {
@@ -328,10 +355,33 @@ public class game_controller : MonoBehaviour {
         {
             //TODO: NO more actions allowed this turn
         }
+        
+    }
+
+    public void LaunchAttack(int xcoor, int ycoor, int zcoor)
+    {
+        attacking = false;
+        
+        if (battlefield.Contains(xcoor, ycoor, zcoor))
+        {
+            //Debug.Log(selected_ship.transform.position);
+
+            GameObject temp = Object.Instantiate(bullet, selected_ship_script.transform.position, Quaternion.identity, GameObject.Find("MineYard").transform) as GameObject;
+
+            temp.GetComponent<Shoot>().Initialize(15, selected_ship_script.transform.position, new Vector3(xcoor + .5f, ycoor + .5f, zcoor + .5f), currentPlayerTurn.id);
+            temp.name = "currentlyActiveMine";
+        }
+        else
+        {
+            //TODO: "COORDINATES ARE NOT IN RANGE"
+        }
+        attackCanvas.SetActive(false);
+        currentPlayerTurn.actions--;
     }
 
     public void LaunchAttack()
     {
+        attacking = false;
         Text xcoordinate = GameObject.Find("X_attack").GetComponentInChildren<Text>();
         Text ycoordinate = GameObject.Find("Y_attack").GetComponentInChildren<Text>();
         Text zcoordinate = GameObject.Find("Z_attack").GetComponentInChildren<Text>();
@@ -357,6 +407,7 @@ public class game_controller : MonoBehaviour {
             //TODO: "COORDINATES ARE NOT IN RANGE"
         }
         attackCanvas.SetActive(false);
+        currentPlayerTurn.actions--;
     }
 
     public void Hot_Seat_Between_Turns()
@@ -368,6 +419,38 @@ public class game_controller : MonoBehaviour {
         {
             between_turns = false;
             Change_Player_View(currentPlayerTurn.id);
+            if (currentPlayerTurn.id == 2)
+            {
+                Ship temp = null;
+                foreach (Ship ship in battlefield.ships)
+                {
+                    if (ship.player == 2)
+                    {
+                        temp = ship;
+                        break;
+                    }
+                }
+
+                selected_ship_script = temp;
+                selected_ship_script.selected = true;
+
+
+                float[] coords = player2.getCoordinates();
+                
+                selected_ship = selected_ship_script.transform.gameObject;
+                selected_ship_render = selected_ship.GetComponentInChildren<Renderer>();
+                selected_ship_render.material.shader = Shader.Find("Self-Illumin/Outlined Diffuse");
+                selected_ship_script.selected = true;
+
+
+                LaunchAttack((int)coords[0], (int)coords[1], (int)coords[2]);
+                selected_ship_script = temp;
+                coords = player2.getCoordinates();
+                LaunchAttack((int)coords[0], (int)coords[1], (int)coords[2]);
+                selected_ship_script = temp;
+                coords = player2.getCoordinates();
+                LaunchAttack((int)coords[0], (int)coords[1], (int)coords[2]);
+            }
         }
         else
         {

@@ -19,7 +19,7 @@ public class Player : MonoBehaviour {
         set { _actions = value; }
     }
     
-    private List<Ship> ships
+    public List<Ship> ships
     {
         get { return _ships; }
         set { _ships = value; }

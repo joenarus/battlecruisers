@@ -12,9 +12,9 @@ public class Cell : MonoBehaviour {
 	public int visible;
     public ShipComponent current_occupant;
     public int hi;
+    public bool highlighted = false;
 
     public Material when_hit;
-
 	//Various coordinate values of the cell numbered 1 - 6
 	private int x; 
 	private int y;
@@ -32,7 +32,23 @@ public class Cell : MonoBehaviour {
             gameObject.transform.Find("Cube").transform.GetComponent<MeshRenderer>().material =
                 gameObject.transform.Find("Cube").transform.GetComponent<MeshRenderer>().materials[1];
         }
+        else if(current_occupant != null && !current_occupant.hit) {
+            gameObject.transform.Find("Cube").transform.GetComponent<MeshRenderer>().material =
+                gameObject.transform.Find("Cube").transform.GetComponent<MeshRenderer>().materials[0];
+        }
 	}
+
+    public void toggle_highlight(int newY, int prevY)
+    {
+        if (newY == y)
+        {
+            highlighted = true;
+        }
+        if (prevY == y)
+        {
+            highlighted = false;
+        }
+    }
 
     public void Initialize(int _x, int _y, int _z)
     {
@@ -53,6 +69,7 @@ public class Cell : MonoBehaviour {
     }
     void OnTriggerEnter(Collider ship_comp)
     {
+        
         if(ship_comp.tag == "ShipCollider")
         {
             current_occupant = ship_comp.gameObject.GetComponent<ShipComponent>();

@@ -78,13 +78,13 @@ public class Ship : MonoBehaviour {
     // Click a ship
     public void OnMouseOver()
     {
-        if (Input.GetMouseButtonDown(0))
-        {
+        //if (Input.GetMouseButtonDown(0))
+        
             //shipInfoCanvas.SetActive(true);
 
-            ship_information.text = "This ship belongs to player " + player;
-            selected = true;
-        }
+          //  ship_information.text = "This ship belongs to player " + player;
+            //selected = true;
+        
     }
 
     public void Initialize(int _player, Vector3 ship)

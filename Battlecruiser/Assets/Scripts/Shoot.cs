@@ -34,9 +34,11 @@ public class Shoot : MonoBehaviour {
             {
                 Debug.Log(other.name);
                 Debug.Log("HIT");
-                other.GetComponent<ShipComponent>().hit = true; //Temporary until we flip it... REGISTERS HIT TO THE GIVEN SHIP COMPONENT\
+                 //Temporary until we flip it... REGISTERS HIT TO THE GIVEN SHIP COMPONENT\
                 Debug.Log(other.transform.position); //Position of HIT (subtract .5 from x,y, and z to get the correct coordinate)
-                Destroy(transform.gameObject);
+                if(!other.GetComponent<ShipComponent>().hit)
+                    Destroy(transform.gameObject);
+                other.GetComponent<ShipComponent>().hit = true;
             }
 
         }

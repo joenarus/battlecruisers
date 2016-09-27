@@ -98,9 +98,9 @@ public class Grid : MonoBehaviour {
         }
         // Placement of ships
         // Example of how ships can be placed
-
-        placeShip(1, 0, 3, 0, "forward", scoutShip);
-        placeShip(1, 3, 0, 0, "farward", shipType4);
+        highlight_level(0, 1);
+        placeShip(1, 1, 3, 1, "forward", scoutShip);
+        placeShip(1, 3, 1, 0, "farward", shipType4);
 
         placeShip(2, 3, 4, 14, "backward", shipType4);
         placeShip(2, 0, 1, 14, "backward", scoutShip);
@@ -108,7 +108,15 @@ public class Grid : MonoBehaviour {
 
     void placeShip(int owner, int posX, int posY, int posZ, string direction, GameObject shipPrefab)
     {
-        GameObject newShip = UnityEngine.Object.Instantiate(shipPrefab, new Vector3(posX + 0.5f, posY + 0.5f, posZ + 0.5f), Quaternion.identity, GameObject.Find("ShipYard").transform) as GameObject;
+        GameObject newShip;
+        if (shipPrefab == shipType4)
+        {
+             newShip = UnityEngine.Object.Instantiate(shipPrefab, new Vector3(posX, posY, posZ), Quaternion.identity, GameObject.Find("ShipYard").transform) as GameObject;
+        }
+        else
+        {
+             newShip = UnityEngine.Object.Instantiate(shipPrefab, new Vector3(posX + .5f, posY + .5f, posZ + .5f), Quaternion.identity, GameObject.Find("ShipYard").transform) as GameObject;
+        }
         Ship tempS = newShip.GetComponent<Ship>();
         Vector3 dimensions = shipPrefab.GetComponentInChildren<MeshRenderer>().bounds.size;
         if(direction == "backward")
@@ -152,22 +160,35 @@ public class Grid : MonoBehaviour {
             {
                 float prev_level = gridPlane.transform.position.y;
                 gridPlane.transform.position += Vector3.up;
-               // highlight_level(gridPlane.transform.position.y, prev_level);
+                highlight_level(gridPlane.transform.position.y, prev_level);
             }
         if (Input.GetKeyDown("down"))
             if (gridPlane.transform.position.y > 0)
+            {
+                float prev_level = gridPlane.transform.position.y;
                 gridPlane.transform.position += Vector3.down;
+                highlight_level(gridPlane.transform.position.y, prev_level);
+            }
 
         if (Input.GetAxis("Mouse ScrollWheel") > 0f) // forward
         {
             if (gridPlane.transform.position.y < 7)
+            {
+                float prev_level = gridPlane.transform.position.y;
                 gridPlane.transform.position += Vector3.up;
+                highlight_level(gridPlane.transform.position.y, prev_level);
+            }
         }
         else if (Input.GetAxis("Mouse ScrollWheel") < 0f) // backwards
         {
             if (gridPlane.transform.position.y > 0)
+            {
+                float prev_level = gridPlane.transform.position.y;
                 gridPlane.transform.position += Vector3.down;
+                highlight_level(gridPlane.transform.position.y, prev_level);
+            }
         }
+        
         
     }
     // Properties?
@@ -181,19 +202,29 @@ public class Grid : MonoBehaviour {
 
     public void highlight_level(float grid_level, float previous_level)
     {
+        
         for (int i = 0; i < 8; i++)
         {
             for (int j = 0; j < 16; j++) {
-                string name = "(" + i + "," + grid_level + "," + j + ")";
-                GameObject tempCell = GameObject.Find("(" + i + "," + grid_level + ","+j + ")");
-                Debug.Log(tempCell.name);
                 
-                Renderer temp_cell_renderer = tempCell.GetComponentInChildren<Renderer>();
-                Debug.Log(temp_cell_renderer);
-                temp_cell_renderer.material.shader = Shader.Find("Self-Illumin/Outlined Diffuse");
-                //selected_ship_render = selected_ship.GetComponentInChildren<Renderer>();
-                //selected_ship_render.material.shader = Shader.Find("Self-Illumin/Outlined Diffuse");
+                GameObject tempCell = GameObject.Find("(" + i + "," + grid_level + ","+ j + ")");
+                tempCell.GetComponent<Cell>().toggle_highlight((int)grid_level, (int)previous_level);
+                GameObject tempCell2 = GameObject.Find("(" + i + "," + previous_level + "," + j + ")");
+                tempCell2.GetComponent<Cell>().toggle_highlight((int)grid_level, (int)previous_level);
             }
+        }
+
+        foreach (Cell cell in this.cell_list)
+        {
+            if (cell.highlighted)
+            {
+                cell.transform.Find("Highlight").gameObject.SetActive(true);
+            }
+            else
+            {
+                cell.transform.Find("Highlight").gameObject.SetActive(false);
+            }
+                
         }
         
     }
