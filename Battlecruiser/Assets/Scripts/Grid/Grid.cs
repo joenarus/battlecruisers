@@ -99,10 +99,10 @@ public class Grid : MonoBehaviour {
         // Placement of ships
         // Example of how ships can be placed
         highlight_level(0, 1);
-        placeShip(1, 1, 3, 1, "forward", scoutShip);
-        placeShip(1, 3, 1, 0, "farward", shipType4);
+        placeShip(1, 4, 3, 1, "forward", scoutShip);
+        placeShip(1, 1, 1, 0, "farward", scoutShip);
 
-        placeShip(2, 3, 4, 14, "backward", shipType4);
+        placeShip(2, 3, 4, 14, "backward", scoutShip);
         placeShip(2, 0, 1, 14, "backward", scoutShip);
     }
 

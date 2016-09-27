@@ -147,14 +147,14 @@ public class game_controller : MonoBehaviour {
         
         if(toggleCam)
         {
-            camera.transform.position = new Vector3(-10, 9, 8);
-            camera.transform.Rotate(30,180,0);
+            camera.transform.position = new Vector3(-9, 11, 8);
+            camera.transform.Rotate(49,180,0);
             toggleCam = false;
         }
         else
         {
-            camera.transform.position = new Vector3(18, 9, 8);
-            camera.transform.Rotate(30, 180, 0);
+            camera.transform.position = new Vector3(17, 11, 8);
+            camera.transform.Rotate(49, 180, 0);
             toggleCam = true;
         }
 
@@ -307,10 +307,54 @@ public class game_controller : MonoBehaviour {
         }
     }
 
+    public void moveShipUp(int x)
+    {
+
+        if (currentPlayerTurn.actions != 0)
+        {
+            if (selected_ship_script != null)
+            {
+                if (Can_Move(selected_ship_script.transform.forward, this.selected_ship_script))
+                {
+                    Vector3 forward = selected_ship_script.transform.forward; //Grabs the direction //basically useless, but may come in handy 
+                    if (selected_ship_script.player == currentPlayerTurn.id)
+                    {
+                        selected_ship_script.transform.Translate(0, x, 0); //Always moves in the Z-axis
+                        currentPlayerTurn.actions--;
+                    }
+                    else
+                    {
+                        selected_ship_script.ship_information.text = "That is not your ship.";
+                    }
+                }
+            }
+        }
+    }
     // Right: x = 1
     // Left: x = 2
     public void turnShip(int x)
     {
+
+        if (currentPlayerTurn.actions != 0)
+        {
+            if (selected_ship_script != null)
+            {
+                if (Can_Move(selected_ship_script.transform.forward, this.selected_ship_script))
+                {
+                    Vector3 forward = selected_ship_script.transform.forward; //Grabs the direction //basically useless, but may come in handy 
+                    if (selected_ship_script.player == currentPlayerTurn.id)
+                    {
+                        selected_ship_script.transform.Translate(x, 0, 0); //Always moves in the Z-axis
+                        currentPlayerTurn.actions--;
+                    }
+                    else
+                    {
+                        selected_ship_script.ship_information.text = "That is not your ship.";
+                    }
+                }
+            }
+        }
+        /*
         if (currentPlayerTurn.actions != 0)
         {
             if (selected_ship_script != null)
@@ -336,6 +380,7 @@ public class game_controller : MonoBehaviour {
 
             }
         }
+        */
     }
     //x = 1: Mine
     //x = 2: Probe
@@ -443,13 +488,13 @@ public class game_controller : MonoBehaviour {
                 selected_ship_script.selected = true;
 
 
-                LaunchAttack((int)coords[0], (int)coords[1], (int)coords[2]);
-                selected_ship_script = temp;
-                coords = player2.getCoordinates();
-                LaunchAttack((int)coords[0], (int)coords[1], (int)coords[2]);
-                selected_ship_script = temp;
-                coords = player2.getCoordinates();
-                LaunchAttack((int)coords[0], (int)coords[1], (int)coords[2]);
+                //LaunchAttack((int)coords[0], (int)coords[1], (int)coords[2]);
+                //selected_ship_script = temp;
+                //coords = player2.getCoordinates();
+                //LaunchAttack((int)coords[0], (int)coords[1], (int)coords[2]);
+                //selected_ship_script = temp;
+                //coords = player2.getCoordinates();
+                //LaunchAttack((int)coords[0], (int)coords[1], (int)coords[2]);
             }
         }
         else
