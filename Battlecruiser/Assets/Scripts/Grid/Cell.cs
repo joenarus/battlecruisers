@@ -19,24 +19,35 @@ public class Cell : MonoBehaviour {
 	private int x; 
 	private int y;
 	private int z;
+    MeshRenderer rend;
 
-	// Use this for initialization
-	void Start () {
-
-	}
+    // Use this for initialization
+    void Start () {
+        rend = gameObject.transform.Find("Cube").transform.GetComponent<MeshRenderer>();
+    }
 	
 	// Update is called once per frame
 	void Update () {
-        if (current_occupant != null && current_occupant.hit)
+        if(current_occupant != null)
         {
-            gameObject.transform.Find("Cube").transform.GetComponent<MeshRenderer>().material =
-                gameObject.transform.Find("Cube").transform.GetComponent<MeshRenderer>().materials[1];
+            if (current_occupant.hit)
+            {
+                rend.material.shader = Shader.Find("Standard");
+                rend.material.SetColor("_Color", Color.red);
+                rend.material.SetColor("_EmissionColor", Color.red);
+            }
+            else if (!current_occupant.hit)
+            {
+
+                rend.material.shader = Shader.Find("Standard");
+                rend.material.SetColor("_Color", Color.blue);
+                rend.material.SetColor("_EmissionColor", Color.blue);
+            }
+
         }
-        else if(current_occupant != null && !current_occupant.hit) {
-            gameObject.transform.Find("Cube").transform.GetComponent<MeshRenderer>().material =
-                gameObject.transform.Find("Cube").transform.GetComponent<MeshRenderer>().materials[0];
-        }
-	}
+
+
+    }
 
     public void toggle_highlight(int newY, int prevY)
     {
@@ -61,19 +72,24 @@ public class Cell : MonoBehaviour {
     }
     void OnTriggerExit(Collider ship_component)
     {
-        if(ship_component.tag == "ShipCollider")
+       
+        if (ship_component.tag == "ShipCollider")
         {
+         
             current_occupant = null;
             occupied = false;
         }
     }
     void OnTriggerEnter(Collider ship_comp)
     {
-        
-        if(ship_comp.tag == "ShipCollider")
+
+        if (ship_comp.tag == "ShipCollider")
         {
+            
             current_occupant = ship_comp.gameObject.GetComponent<ShipComponent>();
             occupied = true;
+            GameObject.Find("Game_Controller").GetComponent<game_controller>().UpdatePlayerVision();
+            GameObject.Find("Game_Controller").GetComponent<game_controller>().UpdateCellViewValues();
         }
     }
 

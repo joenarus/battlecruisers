@@ -8,7 +8,7 @@ public class Shoot : MonoBehaviour {
     Vector3 startpos;
     Vector3 endpos;
     bool is_firing;
-    bool reached_dest;
+    public bool reached_dest;
     int player = 0;
 
 	// Use this for initialization
@@ -36,9 +36,16 @@ public class Shoot : MonoBehaviour {
                 Debug.Log("HIT");
                  //Temporary until we flip it... REGISTERS HIT TO THE GIVEN SHIP COMPONENT\
                 Debug.Log(other.transform.position); //Position of HIT (subtract .5 from x,y, and z to get the correct coordinate)
-                if(!other.GetComponent<ShipComponent>().hit)
+                if (!other.GetComponent<ShipComponent>().hit)
+                {
                     Destroy(transform.gameObject);
+
+                    
+
+                }
                 other.GetComponent<ShipComponent>().hit = true;
+                GameObject.Find("Game_Controller").GetComponent<game_controller>().UpdatePlayerVision();
+                GameObject.Find("Game_Controller").GetComponent<game_controller>().UpdateCellViewValues();
             }
 
         }
@@ -50,7 +57,12 @@ public class Shoot : MonoBehaviour {
         {
             Move_Projectile();
         }
-        
+        if(lerpMoving >= 1 && !reached_dest)
+        {
+            reached_dest = true;
+            GameObject.Find("Game_Controller").GetComponent<game_controller>().UpdatePlayerVision();
+            GameObject.Find("Game_Controller").GetComponent<game_controller>().UpdateCellViewValues();
+        }
 	}
 
     void Move_Projectile()
