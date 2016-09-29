@@ -63,12 +63,6 @@ public class game_controller : MonoBehaviour {
 	void Update () {
         if (between_turns)
             Hide_Everything();
-        /*else
-        {
-            UpdatePlayerVision();
-            UpdateCellViewValues();
-        }
-        */
         
         if (Input.GetMouseButtonDown(0)) //This whole bit handles selecting ships now.
         {
@@ -296,7 +290,7 @@ public class game_controller : MonoBehaviour {
                         selected_ship_script.transform.Translate(0, 0, x); //Always moves in the Z-axis
                         currentPlayerTurn.actions--;
                         action_text.GetComponent<Text>().text = "" + currentPlayerTurn.actions;
-                        UpdatePlayerVision();
+                        
                         UpdateCellViewValues();
                     }
                     else
@@ -324,7 +318,7 @@ public class game_controller : MonoBehaviour {
                         selected_ship_script.transform.Translate(0, x, 0); //Always moves in the Z-axis
                         currentPlayerTurn.actions--;
                         action_text.GetComponent<Text>().text = "" + currentPlayerTurn.actions;
-                        UpdatePlayerVision();
+                        
                         UpdateCellViewValues();
                     }
                     else
@@ -352,7 +346,7 @@ public class game_controller : MonoBehaviour {
                         selected_ship_script.transform.Translate(x, 0, 0); //Always moves in the Z-axis
                         currentPlayerTurn.actions--;
                         action_text.GetComponent<Text>().text = "" + currentPlayerTurn.actions;
-                        UpdatePlayerVision();
+                        
                         UpdateCellViewValues();
                     }
                     else
@@ -478,7 +472,7 @@ public class game_controller : MonoBehaviour {
             between_turns = false;
             Change_Player_View(currentPlayerTurn.id);
             UpdatePlayerVision();
-            UpdateCellViewValues();
+           
             /*if (currentPlayerTurn.id == 2)
             {
                 Ship temp = null;
