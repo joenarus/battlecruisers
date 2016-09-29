@@ -15,7 +15,7 @@ public class Ship : MonoBehaviour {
     public coordinate[] ship_dimensions;
 
     // Bool: Ship able to move
-    private bool can_move;
+    public bool can_move = true;
 
     // Bool: Ship able to attack
     private bool can_attack;
@@ -94,6 +94,7 @@ public class Ship : MonoBehaviour {
         player = _player;
        // ship_facing = _facing;
         selected = false;
+        can_move = true;
         ship_information = GameObject.FindGameObjectWithTag("ShipInfoText").GetComponent<Text>();
         
     }

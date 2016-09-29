@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class Shoot : MonoBehaviour {
 
@@ -44,6 +45,20 @@ public class Shoot : MonoBehaviour {
 
                 }
                 other.GetComponent<ShipComponent>().hit = true;
+                GameObject temp = other.transform.parent.gameObject;
+                ShipComponent[] a = temp.GetComponentsInChildren<ShipComponent>();
+                int count = 0;
+                for (int i = 0; i < a.Length; i++)
+                {
+                    if(a[i].hit)
+                    {
+                        count++;
+                    }
+                    if(count == a.Length)
+                    {
+                        temp.GetComponent<Ship>().can_move = false;
+                    }
+                }
                 GameObject.Find("Game_Controller").GetComponent<game_controller>().UpdatePlayerVision();
                 GameObject.Find("Game_Controller").GetComponent<game_controller>().UpdateCellViewValues();
             }
@@ -52,7 +67,7 @@ public class Shoot : MonoBehaviour {
     }
 	
 	// Update is called once per frame
-	void Update () {
+	void FixedUpdate () {
 	    if(lerpMoving < 1)
         {
             Move_Projectile();

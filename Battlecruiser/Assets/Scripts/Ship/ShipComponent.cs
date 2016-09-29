@@ -18,8 +18,4 @@ public class ShipComponent : MonoBehaviour {
         vision = 2;
 	}
 	
-	// Update is called once per frame
-	void Update () {
-	
-	}
 }

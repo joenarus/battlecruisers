@@ -43,7 +43,6 @@ public class Cell : MonoBehaviour {
                 rend.material.SetColor("_Color", Color.blue);
                 rend.material.SetColor("_EmissionColor", Color.blue);
             }
-
         }
 
 

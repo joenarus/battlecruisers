@@ -29,10 +29,6 @@ public class AI : Player {
 	    
 	}
 	
-	// Update is called once per frame
-	void Update () {
-	    
-	}
 
     
 }

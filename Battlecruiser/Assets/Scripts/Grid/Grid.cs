@@ -98,12 +98,16 @@ public class Grid : MonoBehaviour {
         }
         // Placement of ships
         // Example of how ships can be placed
-        highlight_level(0, 1);
+       // highlight_level(0, 1);
         placeShip(1, 4, 3, 1, "forward", scoutShip);
-        placeShip(1, 1, 1, 0, "farward", scoutShip);
+        placeShip(1, 1, 1, 0, "forward", scoutShip);
+        placeShip(1, 6, 5, 4, "forward", scoutShip);
+        placeShip(1, 2, 4, 3, "forward", scoutShip);
 
-        placeShip(2, 3, 4, 14, "backward", scoutShip);
-        placeShip(2, 0, 1, 14, "backward", scoutShip);
+        placeShip(2, 5, 4, 14, "backward", scoutShip);
+        placeShip(2, 0, 1, 12, "backward", scoutShip);
+        placeShip(2, 7, 5, 12, "backward", scoutShip);
+        placeShip(2, 1, 4, 11, "backward", scoutShip);
     }
 
     void placeShip(int owner, int posX, int posY, int posZ, string direction, GameObject shipPrefab)
@@ -160,14 +164,14 @@ public class Grid : MonoBehaviour {
             {
                 float prev_level = gridPlane.transform.position.y;
                 gridPlane.transform.position += Vector3.up;
-                highlight_level(gridPlane.transform.position.y, prev_level);
+               // highlight_level(gridPlane.transform.position.y, prev_level);
             }
         if (Input.GetKeyDown("down"))
             if (gridPlane.transform.position.y > 0)
             {
                 float prev_level = gridPlane.transform.position.y;
                 gridPlane.transform.position += Vector3.down;
-                highlight_level(gridPlane.transform.position.y, prev_level);
+               // highlight_level(gridPlane.transform.position.y, prev_level);
             }
 
         if (Input.GetAxis("Mouse ScrollWheel") > 0f) // forward
@@ -176,7 +180,7 @@ public class Grid : MonoBehaviour {
             {
                 float prev_level = gridPlane.transform.position.y;
                 gridPlane.transform.position += Vector3.up;
-                highlight_level(gridPlane.transform.position.y, prev_level);
+              //  highlight_level(gridPlane.transform.position.y, prev_level);
             }
         }
         else if (Input.GetAxis("Mouse ScrollWheel") < 0f) // backwards
@@ -185,11 +189,9 @@ public class Grid : MonoBehaviour {
             {
                 float prev_level = gridPlane.transform.position.y;
                 gridPlane.transform.position += Vector3.down;
-                highlight_level(gridPlane.transform.position.y, prev_level);
+                //highlight_level(gridPlane.transform.position.y, prev_level);
             }
         }
-        
-        
     }
     // Properties?
     /* Ex:

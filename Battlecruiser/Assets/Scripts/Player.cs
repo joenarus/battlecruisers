@@ -35,8 +35,5 @@ public class Player : MonoBehaviour {
         _ships = new List<Ship>();
 	}
 	
-	// Update is called once per frame
-	void Update () {
 	
-	}
 }

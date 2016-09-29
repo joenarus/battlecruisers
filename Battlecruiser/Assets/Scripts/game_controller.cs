@@ -11,6 +11,8 @@ public class game_controller : MonoBehaviour {
     public Camera mainCam;
 
     public GameObject action_text;
+    public GameObject StatusNo;
+    bool turnOver = false;
 
     public GameObject camera;
     bool toggleCam = false;
@@ -47,7 +49,7 @@ public class game_controller : MonoBehaviour {
         player1.id = 1;
         player2 = gameObject.AddComponent<AI>();
         player2.id = 2;
-        
+        Application.targetFrameRate = 60;
         currentPlayerTurn = player1;
         // Firt turn needs actions or they just have to end turn
         currentPlayerTurn.actions = 3;
@@ -61,12 +63,19 @@ public class game_controller : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+        
+        if(currentPlayerTurn.actions == 0 && !turnOver)
+        {
+            StatusNo.SetActive(true);
+            turnOver = true; 
+        }
+
         if (between_turns)
             Hide_Everything();
-        
+
         if (Input.GetMouseButtonDown(0)) //This whole bit handles selecting ships now.
         {
-            bool found = false; 
+            bool found = false;
             RaycastHit[] hits;
             Ray ray = mainCam.ScreenPointToRay(Input.mousePosition);
             hits = Physics.RaycastAll(ray, 100.0f);
@@ -74,7 +83,7 @@ public class game_controller : MonoBehaviour {
             {
                 RaycastHit hit = hits[i];
 
-                if(hit.transform.tag == "Ship" && !found && !attacking) //Tags ships
+                if (hit.transform.tag == "Ship" && !found && !attacking) //Tags ships
                 {
                     // Check for clicking invisble ships
                     if (hit.transform.Find("Shape").gameObject.activeInHierarchy)
@@ -90,37 +99,38 @@ public class game_controller : MonoBehaviour {
                         selected_ship_render = selected_ship.GetComponentInChildren<Renderer>();
                         selected_ship_render.material.shader = Shader.Find("Self-Illumin/Outlined Diffuse");
                         selected_ship_script.selected = true;
+                        break;
                     }
                 }
 
-                if (attacking && hit.transform.tag == "Cell" ) //Tags ships
+                if (attacking && hit.transform.tag == "Cell") //Tags ships
                 {
 
                     // Clicking a highlighted cell
                     int _x = (int)(hit.point.x);
                     int _y = (int)(hit.point.y);
                     int _z = (int)(hit.point.z);
-                    LaunchAttack(_x,_y,_z);
+                    LaunchAttack(_x, _y, _z);
                 }
 
             }
-            if (!EventSystem.current.IsPointerOverGameObject()) {
+            if (!EventSystem.current.IsPointerOverGameObject())
+            {
                 if (!found && selected_ship_script != null)
                 {
                     UnselectShip();
                 }
             }
-             
-            
+
+
         }
-        if (Input.GetKeyDown(KeyCode.Escape))
+        else if (Input.GetKeyDown(KeyCode.Escape))
         {
             if (selected_ship_script != null)
             {
                 UnselectShip();
             }
         }
-        
     }
 
     public void UnselectShip()
@@ -169,7 +179,9 @@ public class game_controller : MonoBehaviour {
             currentPlayerTurn = player2;
             currentPlayerTurn.actions = 3;
             player2.is_turn = true;
-           
+
+            StatusNo.SetActive(false);
+
 
         }
         else
@@ -178,8 +190,10 @@ public class game_controller : MonoBehaviour {
             currentPlayerTurn = player1;
             player2.is_turn = false;
             currentPlayerTurn.actions = 3;
-            
+            StatusNo.SetActive(false);
+
         }
+        turnOver = false;
         action_text.GetComponent<Text>().text = "" + currentPlayerTurn.actions;
 
         foreach (Ship ship in battlefield.ships)
@@ -389,14 +403,13 @@ public class game_controller : MonoBehaviour {
     public void Attack(int x)
     {
         
-        if (currentPlayerTurn.actions != 0)
+        if (currentPlayerTurn.actions != 0 && selected_ship_script.can_move)
         {
             attacking = true;
             attackCanvas.SetActive(true);
             if (selected_ship_script != null && selected_ship_script.player == currentPlayerTurn.id)
             {
                 attackCoordinate = selected_ship_script.transform.position;
-                Debug.Log(attackCoordinate);
             }
         }
         else
@@ -519,27 +532,39 @@ public class game_controller : MonoBehaviour {
     public bool Can_Move(Vector3 destination, Ship ship)
     {
         // Check each moving block
-        foreach(Grid.Coordinate coord in battlefield.GetShipOccupation(ship.ship_number))
+        if (ship.can_move)
         {
-            // Destination
-            Grid.Coordinate moving_to = new Grid.Coordinate(coord.x + (int)destination.x, coord.y + (int)destination.y, coord.z + (int)destination.z);
-            // Check if destination exists on Grid: in case it might move off the grid
-            if (battlefield.Contains(moving_to.x, moving_to.y, moving_to.z))
+            Debug.Log("DESTINATION: " + destination);
+            foreach (Grid.Coordinate coord in battlefield.GetShipOccupation(ship.ship_number))
             {
-                // Check if ship moving does not bump into a component of a different ship
-                if (battlefield.cell_list[moving_to.x, moving_to.y, moving_to.z].current_occupant != null)
+                // Destination
+                Grid.Coordinate moving_to = new Grid.Coordinate(coord.x + (int)destination.x, coord.y + (int)destination.y, coord.z + (int)destination.z);
+                // Check if destination exists on Grid: in case it might move off the grid
+                Debug.Log(moving_to.z);
+                if (battlefield.Contains(moving_to.x, moving_to.y, moving_to.z))
                 {
-                    // Check if ship number is the same, if not illegal move would happen.
-                    if (battlefield.cell_list[moving_to.x, moving_to.y, moving_to.z].current_occupant.GetComponentInParent<Ship>().ship_number != ship.ship_number)
+                    // Check if ship moving does not bump into a component of a different ship
+                    if (battlefield.cell_list[moving_to.x, moving_to.y, moving_to.z].current_occupant != null)
+                    {
+                       
+                        // Check if ship number is the same, if not illegal move would happen.
+                        if (battlefield.cell_list[moving_to.x, moving_to.y, moving_to.z].current_occupant.GetComponentInParent<Ship>().ship_number != ship.ship_number)
+                        {
+                            Debug.Log("Yo");
+                            return false;
+                        }
+                    }
+                    // If Cell doesn't have another ship component, still check if it is occupied: Maybe a mine or a prob for instance
+                    if (battlefield.cell_list[moving_to.x, moving_to.y, moving_to.z].occupied == true && battlefield.cell_list[moving_to.x, moving_to.y, moving_to.z].current_occupant == null)
                         return false;
                 }
-                // If Cell doesn't have another ship component, still check if it is occupied: Maybe a mine or a prob for instance
-                if (battlefield.cell_list[moving_to.x, moving_to.y, moving_to.z].occupied == true && battlefield.cell_list[moving_to.x, moving_to.y, moving_to.z].current_occupant == null)
+                else
                     return false;
             }
-            else
-                return false;
+
         }
+        else
+            return false;
         return true;
     }
 }
